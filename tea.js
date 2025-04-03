@@ -22,32 +22,6 @@ function maskAddress(address) {
   return `${address.slice(0, 6)}...${address.slice(-4)}`;
 }
 
-// Read addresses from a .txt file
-const filePath = "address.txt"; // Updated file name
-if (!fs.existsSync(filePath)) {
-  console.error(`❌ File ${filePath} not found!`);
-  process.exit(1);
-}
-
-const addresses = fs.readFileSync(filePath, "utf-8").split("\n").map(addr => addr.trim()).filter(addr => addr);
-if (addresses.length === 0) {
-  console.error("❌ File address.txt is empty!"); // Updated file name
-  process.exit(1);
-}
-
-// Read private keys from private_keys.txt file
-const tuyulFilePath = "private_keys.txt"; // Updated file name
-if (!fs.existsSync(tuyulFilePath)) {
-  console.error(`❌ File ${tuyulFilePath} not found!`);
-  process.exit(1);
-}
-
-const privateKeys = fs.readFileSync(tuyulFilePath, "utf-8").split("\n").map(key => key.trim()).filter(key => key);
-if (privateKeys.length === 0) {
-  console.error("❌ File private_keys.txt is empty!"); // Updated file name
-  process.exit(1);
-}
-
 // Validate private keys and addresses
 function validatePrivateKey(privateKey) {
   if (!ethers.isHexString(privateKey) || privateKey.length !== 66) {
@@ -59,15 +33,6 @@ function validateAddress(address) {
   if (!ethers.isAddress(address)) {
     throw new Error("Invalid Ethereum address.");
   }
-}
-
-// Securely load private keys and addresses
-try {
-  privateKeys.forEach(validatePrivateKey);
-  addresses.forEach(validateAddress);
-} catch (error) {
-  console.error(`❌ Security validation failed: ${error.message}`);
-  process.exit(1);
 }
 
 // Function to delay execution
@@ -292,10 +257,7 @@ function showMenu() {
   });
 
   console.log(chalk.yellow(`YANG PAKE INI GAY - YANG PAKE INI GAY - YANG PAKE INI GAY `));
-  console.log(`📋 Total wallets: ${privateKeys.length}`);
-  console.log(`📋 Total addresses: ${addresses.length}`);
-  console.log(`📋 Detected contract address: ${TOKEN_CONTRACT_ADDRESS}`);
-
+  
   console.log("\n=== Main Menu ===");
   console.log("1. Check balances for all wallets");
   console.log("2. Send tokens");
@@ -388,6 +350,42 @@ function showMenu() {
   });
 }
 
+// Detect and validate address.txt and private_keys.txt
+function detectAndValidateFiles() {
+  // Read addresses from a .txt file
+  const filePath = "address.txt"; // Updated file name
+  if (!fs.existsSync(filePath)) {
+    console.error(`❌ File ${filePath} not found!`);
+    process.exit(1);
+  }
+
+  const addresses = fs.readFileSync(filePath, "utf-8").split("\n").map(addr => addr.trim()).filter(addr => addr);
+
+  // Read private keys from private_keys.txt file
+  const tuyulFilePath = "private_keys.txt"; // Updated file name
+  if (!fs.existsSync(tuyulFilePath)) {
+    console.error(`❌ File ${tuyulFilePath} not found!`);
+    process.exit(1);
+  }
+
+  const privateKeys = fs.readFileSync(tuyulFilePath, "utf-8").split("\n").map(key => key.trim()).filter(key => key);
+  if (privateKeys.length === 0) {
+    console.error("❌ File private_keys.txt is empty!"); // Updated file name
+    process.exit(1);
+  }
+
+  // Validate private keys and addresses
+  try {
+    privateKeys.forEach(validatePrivateKey);
+    addresses.forEach(validateAddress);
+  } catch (error) {
+    console.error(`❌ Security validation failed: ${error.message}`);
+    process.exit(1);
+  }
+
+  return { addresses, privateKeys };
+}
+
 // Global error handling
 process.on("unhandledRejection", (reason) => {
   console.error("❌ Unhandled Rejection:", reason);
@@ -397,5 +395,6 @@ process.on("uncaughtException", (error) => {
   console.error("❌ Uncaught Exception:", error.message);
 });
 
-// Run the menu
+// Detect files and run the menu
+const { addresses, privateKeys } = detectAndValidateFiles();
 showMenu();
