@@ -19,11 +19,6 @@
 
 3. **Setup the Wallet File**
 
-   Edit a file called `address.txt` add as many wallet addresses as possible
-
-   if you dont use your own wallet list, use no.3 to generate wallet
-   and re start node tea.js
-
    Edit a file called `private_keys.txt` This file should contain the private keys for the wallets you want to use, one private key per line. Make sure to keep this file secure.
 
    config in tea.js
@@ -56,6 +51,10 @@
      -input delay per transaction in second
      
      -input how much token you send example 0.00001
+   3. Edit a file called `address.txt` add as many wallet addresses as possible
+
+   if you dont use your own wallet list, use no.3 to generate wallet
+   and restart `node tea.js`
       
   
   If the address content in address.txt is less than the transaction amount, it will be sent to the existing address repeatedly until the request is met.
