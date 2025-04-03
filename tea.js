@@ -263,6 +263,27 @@ async function sendTokensFromMultipleWallets(numTransactions, delayPerTx, tokenA
   console.log(`❌ Total failed transactions: ${failedCount}`);
 }
 
+// Function to generate wallet addresses
+async function generateWalletAddresses(count) {
+  if (count <= 0 || isNaN(count)) {
+    console.error("❌ Invalid number of wallets to generate.");
+    return;
+  }
+
+  console.log(`🔑 Generating ${count} wallet addresses...`);
+  const generatedAddresses = [];
+
+  for (let i = 0; i < count; i++) {
+    const wallet = ethers.Wallet.createRandom();
+    generatedAddresses.push(wallet.address);
+    console.log(`✅ Wallet ${i + 1}: ${maskAddress(wallet.address)}`);
+  }
+
+  // Save generated addresses to address.txt
+  fs.writeFileSync("address.txt", generatedAddresses.join("\n"), "utf-8");
+  console.log(`📁 Generated addresses saved to address.txt`);
+}
+
 // Function to display menu
 function showMenu() {
   const rl = readline.createInterface({
@@ -278,9 +299,10 @@ function showMenu() {
   console.log("\n=== Main Menu ===");
   console.log("1. Check balances for all wallets");
   console.log("2. Send tokens");
-  console.log("3. Exit");
+  console.log("3. Generate wallet burner addresses");
+  console.log("4. Exit");
 
-  rl.question("Choose an option (1-3): ", (choice) => {
+  rl.question("Choose an option (1-4): ", (choice) => {
     console.clear(); // Clear the console for better readability
 
     switch (choice.trim()) {
@@ -335,6 +357,23 @@ function showMenu() {
         break;
 
       case "3":
+        rl.question("How many wallet addresses do you want to generate? ", (input) => {
+          const count = parseInt(input);
+          if (isNaN(count) || count <= 0) {
+            console.log("❌ Enter a valid number!");
+            rl.close();
+            return;
+          }
+
+          generateWalletAddresses(count).then(() => {
+            console.log("✅ Wallet generation completed. Return to Main Menu");
+            rl.close();
+            showMenu(); // Return to the main menu
+          });
+        });
+        break;
+
+      case "4":
         console.log("👋 Exiting...");
         rl.close();
         process.exit(0);
