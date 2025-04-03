@@ -249,6 +249,12 @@ async function generateWalletAddresses(count) {
   console.log(`📁 Generated addresses saved to address.txt`);
 }
 
+// Function to restart the script
+function restartScript() {
+  console.log(chalk.blue("🔄 Restarting tea.bot..."));
+  process.exit(1); // Exit with a non-zero code to signal a restart
+}
+
 // Function to display menu
 function showMenu() {
   const rl = readline.createInterface({
@@ -328,9 +334,9 @@ function showMenu() {
           }
 
           generateWalletAddresses(count).then(() => {
-            console.log("✅ Wallet generation completed. Return to Main Menu");
+            console.log("✅ Wallet generation completed. Restarting tea.bot...");
             rl.close();
-            showMenu(); // Return to the main menu
+            restartScript(); // Restart the script after generating addresses
           });
         });
         break;
@@ -356,7 +362,7 @@ function detectAndValidateFiles() {
   const filePath = "address.txt"; // Updated file name
   if (!fs.existsSync(filePath)) {
     console.error(`❌ File ${filePath} not found!`);
-    process.exit(1);
+    return { addresses: [], privateKeys: [] }; // Return empty arrays to avoid crashing
   }
 
   const addresses = fs.readFileSync(filePath, "utf-8").split("\n").map(addr => addr.trim()).filter(addr => addr);
@@ -365,14 +371,10 @@ function detectAndValidateFiles() {
   const tuyulFilePath = "private_keys.txt"; // Updated file name
   if (!fs.existsSync(tuyulFilePath)) {
     console.error(`❌ File ${tuyulFilePath} not found!`);
-    process.exit(1);
+    return { addresses, privateKeys: [] }; // Return empty privateKeys to avoid crashing
   }
 
   const privateKeys = fs.readFileSync(tuyulFilePath, "utf-8").split("\n").map(key => key.trim()).filter(key => key);
-  if (privateKeys.length === 0) {
-    console.error("❌ File private_keys.txt is empty!"); // Updated file name
-    process.exit(1);
-  }
 
   // Validate private keys and addresses
   try {
@@ -380,21 +382,21 @@ function detectAndValidateFiles() {
     addresses.forEach(validateAddress);
   } catch (error) {
     console.error(`❌ Security validation failed: ${error.message}`);
-    process.exit(1);
+    return { addresses, privateKeys }; // Return current state to avoid crashing
   }
 
   return { addresses, privateKeys };
 }
 
-// Global error handling
-process.on("unhandledRejection", (reason) => {
-  console.error("❌ Unhandled Rejection:", reason);
-});
-
-process.on("uncaughtException", (error) => {
-  console.error("❌ Uncaught Exception:", error.message);
-});
-
 // Detect files and run the menu
 const { addresses, privateKeys } = detectAndValidateFiles();
+
+// Ensure addresses and privateKeys are defined before proceeding
+if (addresses.length === 0) {
+  console.warn("⚠️ No valid addresses found in address.txt. Some features may not work.");
+}
+if (privateKeys.length === 0) {
+  console.warn("⚠️ No valid private keys found in private_keys.txt. Some features may not work.");
+}
+
 showMenu();
