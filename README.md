@@ -26,6 +26,7 @@
    config in tea.js
    
    RPC_URL = "https://tea-sepolia.g.alchemy.com/public";
+   
    TOKEN_CONTRACT_ADDRESS = "0x000000000000000000000000000000"; // Replace with the token contract address to be used for sending
 
 
