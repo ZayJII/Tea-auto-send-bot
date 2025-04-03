@@ -1,0 +1,10 @@
+{
+  "name": "tea",
+  "version": "1.0.0",
+  "main": "bot.js",
+  "author": "ZayJII",
+  "dependencies": {
+    "chalk": "^5.4.1",
+    "ethers": "^6.13.5"
+  }
+}
