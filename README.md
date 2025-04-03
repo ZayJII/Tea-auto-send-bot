@@ -19,7 +19,10 @@
 
 3. **Setup the Wallet File**
 
-   Edit a file called `address.txt` add as many wallet addresses as possible 
+   Edit a file called `address.txt` add as many wallet addresses as possible
+
+   if you dont use your own wallet list, use no.3 to generate wallet
+   and re start node tea.js
 
    Edit a file called `private_keys.txt` This file should contain the private keys for the wallets you want to use, one private key per line. Make sure to keep this file secure.
 
